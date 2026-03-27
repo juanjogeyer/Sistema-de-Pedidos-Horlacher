@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #fafafa; /* Gris extra claro minimalista */
+  color: #111111; /* Negro suave */
+}
+
+/* Opcional: Ocultar barra de scroll para limpieza extra en cart */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@media print {
+  body {
+    background-color: transparent !important;
+  }
+  @page {
+    margin: 1cm;
+  }
+}
