@@ -1,20 +1,38 @@
 import { useState, useRef } from 'react';
 import { Printer, Trash2 } from 'lucide-react';
 import { PrintableOrder } from './PrintableOrder';
+import html2pdf from 'html2pdf.js';
 
 export function PendingOrders({ orders, onRemoveOrder }) {
   const [printingOrder, setPrintingOrder] = useState(null);
+  const printRef = useRef(null);
 
   const handlePrint = (order) => {
     setPrintingOrder(order);
     
     // Allow React to render the PrintableOrder component
-    setTimeout(() => {
+    setTimeout(async () => {
+      // First, trigger PDF download
+      const element = printRef.current;
+      if (element) {
+        const dateStr = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+        const opt = {
+          margin: 10,
+          filename: `pedido-${order.name.replace(/\s+/g, '-')}-${dateStr}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, windowWidth: 800 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        await html2pdf().set(opt).from(element).save();
+      }
+
+      // Then trigger print dialog
       window.print();
+      
       // Optionally remove right after printing dialog closes
       onRemoveOrder(order.id);
       setPrintingOrder(null);
-    }, 100);
+    }, 500);
   };
 
   if (orders.length === 0) {
@@ -81,8 +99,10 @@ export function PendingOrders({ orders, onRemoveOrder }) {
       </div>
 
       {/* Hidden print renderer */}
-      <div className="hidden print:block">
-        {printingOrder && <PrintableOrder order={printingOrder} />}
+      <div className="fixed left-[-9999px] top-[-9999px] print:static print:left-auto print:top-auto">
+        <div ref={printRef} className="w-[800px] bg-white p-4 print:w-auto print:p-0">
+          {printingOrder && <PrintableOrder order={printingOrder} />}
+        </div>
       </div>
     </>
   );
