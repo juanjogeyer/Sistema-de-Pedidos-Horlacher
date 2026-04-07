@@ -12,18 +12,14 @@ import { PendingOrders } from './components/orders/PendingOrders';
 export default function App() {
   const [activeTab, setActiveTab] = useState('order'); // 'order' or 'pending'
   const { cart, totalItems, getQuantity, updateQuantity, clearCart } = useCart();
-  const { category, setCategory, variant, setVariant, subcategory, setSubcategory, filteredProducts } = useFilter();
+  const { category, setCategory, variant, setVariant, filteredProducts } = useFilter();
   const { orders, addOrder, removeOrder } = useOrders();
 
   const visible = filteredProducts(products);
 
   // Determinar variantes disponibles y autoseleccionar si la actual no es válida
-  const categoryProducts = products.filter(p => p.category === category && (subcategory === 'all' || p.subcategory === subcategory));
-  const availableVariantsSet = new Set(categoryProducts.map(p => p.variant));
-  const availableVariants = [];
-  if (availableVariantsSet.has('unidad')) availableVariants.push('unidad');
-  if (availableVariantsSet.has('bulto')) availableVariants.push('bulto');
-  if (availableVariantsSet.has('granel')) availableVariants.push('granel');
+  const availableVariants = [...new Set(products.filter(p => p.category === category).map(p => p.variant))]
+    .sort((a, b) => ['bulto', 'granel'].indexOf(a) - ['bulto', 'granel'].indexOf(b));
 
   useEffect(() => {
     if (availableVariants.length > 0 && !availableVariants.includes(variant)) {
@@ -53,8 +49,6 @@ export default function App() {
             onCategoryChange={setCategory}
             variant={variant}
             onVariantChange={setVariant}
-            subcategory={subcategory}
-            onSubcategoryChange={setSubcategory}
             availableVariants={availableVariants}
           />
         )}
