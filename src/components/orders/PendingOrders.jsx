@@ -80,14 +80,14 @@ export function PendingOrders({ orders, onRemoveOrder }) {
               <div className="flex gap-2">
                 <button
                   onClick={() => handlePrint(order)}
-                  className="flex-1 bg-black text-white px-4 py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors"
+                  className="flex-1 bg-brand-blue text-white px-4 py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-brand-blue-dark transition-colors"
                 >
                   <Printer size={18} />
                   Imprimir
                 </button>
                 <button
                   onClick={() => onRemoveOrder(order.id)}
-                  className="px-4 py-2.5 rounded-xl font-medium text-red-600 bg-red-50 hover:bg-red-100 transition-colors flex items-center justify-center"
+                  className="px-4 py-2.5 rounded-xl font-medium text-brand-red bg-brand-red-light hover:bg-red-100 transition-colors flex items-center justify-center"
                   title="Eliminar pedido sin imprimir"
                 >
                   <Trash2 size={18} />

@@ -10,9 +10,13 @@ export default {
         sans: ['Inter', 'sans-serif'],
       },
       colors: {
-        accent: {
-          green: '#25D366', // WhatsApp Brand Color for the button
-          hover: '#1DA851', // Darker shade on hover
+        brand: {
+          blue: '#005CA9',
+          'blue-dark': '#004a8a',
+          'blue-light': '#e8f2fb',
+          red: '#E30613',
+          'red-dark': '#b8040f',
+          'red-light': '#fde8e9',
         },
       }
     },

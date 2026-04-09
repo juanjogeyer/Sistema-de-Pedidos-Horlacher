@@ -14,7 +14,7 @@ export function ProductCard({ product, quantity, onUpdate }) {
     onUpdate(product, 1);
   });
   return (
-    <div className={`flex items-center gap-3 px-4 py-3 border-b border-gray-100 transition-colors ${quantity > 0 ? 'bg-gray-50' : 'bg-white'}`}>
+    <div className={`flex items-center gap-3 px-4 py-3 border-b border-gray-100 transition-colors ${quantity > 0 ? 'bg-brand-blue-light' : 'bg-white'}`}>
       {/* Name + price */}
       <div className="flex-1 min-w-0">
         <p className="text-sm text-gray-900 leading-snug truncate">{product.name}</p>
@@ -33,7 +33,7 @@ export function ProductCard({ product, quantity, onUpdate }) {
         <span className="text-sm font-medium w-5 text-center">{quantity}</span>
         <button
           {...plusProps}
-          className="w-7 h-7 flex items-center justify-center bg-gray-900 rounded-full text-white hover:bg-gray-700 transition-colors"
+          className="w-7 h-7 flex items-center justify-center bg-brand-blue rounded-full text-white hover:bg-brand-blue-dark transition-colors"
         >
           <Plus size={12} />
         </button>

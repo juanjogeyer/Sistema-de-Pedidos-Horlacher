@@ -76,7 +76,7 @@ export function CartBar({ cart, totalItems, onConfirm }) {
 
               <button
                 type="submit"
-                className="w-full bg-accent-green text-white font-medium px-5 py-3 rounded-xl hover:bg-accent-hover transition-colors flex items-center justify-center gap-2 shadow-lg shadow-accent-green/20"
+                className="w-full bg-brand-blue text-white font-medium px-5 py-3 rounded-xl hover:bg-brand-blue-dark transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-blue/20"
               >
                 <Send size={18} fill="currentColor" />
                 Enviar Pedido
@@ -89,7 +89,7 @@ export function CartBar({ cart, totalItems, onConfirm }) {
       {/* Sticky bottom bar */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="w-full bg-gray-900 text-white flex items-center justify-between px-5 py-4 hover:bg-gray-800 transition-colors"
+        className="w-full bg-brand-blue text-white flex items-center justify-between px-5 py-4 hover:bg-brand-blue-dark transition-colors"
       >
         <div className="flex items-center gap-3 max-w-xl mx-auto w-full">
           <div className="bg-white/20 rounded-full p-1.5">

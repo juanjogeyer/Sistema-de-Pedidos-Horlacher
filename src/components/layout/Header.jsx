@@ -5,7 +5,7 @@ export function Header({ activeTab, setActiveTab, pendingCount }) {
   const [imgError, setImgError] = useState(false);
 
   return (
-    <header className="sticky top-0 z-10 bg-[#fafafa]/90 backdrop-blur-md border-b border-gray-200">
+    <header className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-xl mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
           {!imgError ? (
@@ -16,7 +16,7 @@ export function Header({ activeTab, setActiveTab, pendingCount }) {
               onError={() => setImgError(true)}
             />
           ) : (
-            <div className="w-9 h-9 bg-gray-900 rounded-xl flex items-center justify-center text-white font-bold shadow-sm">
+            <div className="w-9 h-9 bg-brand-blue rounded-xl flex items-center justify-center text-white font-bold shadow-sm">
               {APP_NAME.charAt(0)}
             </div>
           )}
@@ -29,7 +29,7 @@ export function Header({ activeTab, setActiveTab, pendingCount }) {
           onClick={() => setActiveTab('order')}
           className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
             activeTab === 'order' 
-              ? 'border-gray-900 text-gray-900' 
+              ? 'border-brand-blue text-brand-blue' 
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
@@ -39,13 +39,13 @@ export function Header({ activeTab, setActiveTab, pendingCount }) {
           onClick={() => setActiveTab('pending')}
           className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
             activeTab === 'pending' 
-              ? 'border-gray-900 text-gray-900' 
+              ? 'border-brand-blue text-brand-blue' 
               : 'border-transparent text-gray-500 hover:text-gray-700'
           }`}
         >
           Pedidos pendientes
           {pendingCount > 0 && (
-            <span className="bg-accent-green text-white text-xs px-2 py-0.5 rounded-full">
+            <span className="bg-brand-red text-white text-xs px-2 py-0.5 rounded-full">
               {pendingCount}
             </span>
           )}
