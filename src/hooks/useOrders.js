@@ -1,48 +1,52 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 export function useOrders() {
-  const [orders, setOrders] = useState(() => {
-    try {
-      const saved = localStorage.getItem('pending_orders');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error('Error loading orders', e);
-    }
-    return [];
-  });
+  const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    localStorage.setItem('pending_orders', JSON.stringify(orders));
-  }, [orders]);
+    // Carga inicial de pedidos
+    fetchOrders();
 
-  const addOrder = (order) => {
+    // Suscripción en tiempo real — cualquier cambio en la tabla llega al instante
+    const channel = supabase
+      .channel('orders-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+        fetchOrders(); // recarga cuando hay INSERT, UPDATE o DELETE
+      })
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
+  }, []);
+
+  async function fetchOrders() {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('date', { ascending: true });
+
+    if (!error && data) {
+      setOrders(data);
+    }
+  }
+
+  const addOrder = async (order) => {
     const newOrder = {
       ...order,
       id: crypto.randomUUID(),
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
     };
 
-    // Agregar a pedidos pendientes (estado actual)
-    setOrders((prev) => [...prev, newOrder]);
-
-    // Guardar en el historial permanente (localStorage persistente)
-    try {
-      const history = JSON.parse(localStorage.getItem('order_history') || '[]');
-      localStorage.setItem('order_history', JSON.stringify([...history, newOrder]));
-    } catch (e) {
-      console.error('Error saving to history', e);
-    }
-
-    // Guardar automáticamente en el disco (vía servidor local)
-    fetch('/api/save-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newOrder)
-    }).catch(err => console.error('Error auto-saving file:', err));
+    const { error } = await supabase.from('orders').insert(newOrder);
+    if (error) console.error('Error al guardar pedido:', error.message);
+    // No hace falta actualizar el estado manualmente:
+    // la suscripción en tiempo real lo detecta y llama a fetchOrders()
   };
 
-  const removeOrder = (id) => {
-    setOrders((prev) => prev.filter(o => o.id !== id));
+  const removeOrder = async (id) => {
+    const { error } = await supabase.from('orders').delete().eq('id', id);
+    if (error) console.error('Error al eliminar pedido:', error.message);
+    // Ídem — la suscripción actualiza automáticamente
   };
 
   return { orders, addOrder, removeOrder };
