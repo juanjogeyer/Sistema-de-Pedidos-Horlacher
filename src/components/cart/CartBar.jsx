@@ -79,7 +79,8 @@ export function CartBar({ cart, totalItems, onConfirm }) {
                     }`}
                 >
                   <option value="" disabled>Expreso *</option>
-                  <option value="Fernandez">Fernandez</option>
+                  <option value="TransFer">TransFer</option>
+                  <option value="Fernandez">Mario Fernandez</option>
                   <option value="Maldonado">Maldonado</option>
                   <option value="Camion Propio">Camion Propio</option>
                   <option value="Log Pic">Log Pic</option>
