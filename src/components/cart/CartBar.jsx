@@ -50,7 +50,7 @@ export function CartBar({ cart, totalItems, onConfirm }) {
                   type="text"
                   required
                   autoFocus
-                  placeholder="Tu nombre *"
+                  placeholder="Cliente *"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="block w-full pl-9 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-black focus:bg-white focus:ring-1 focus:ring-black transition-colors text-sm"
