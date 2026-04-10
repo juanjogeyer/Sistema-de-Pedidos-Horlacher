@@ -66,7 +66,7 @@ export function CartBar({ cart, totalItems, onConfirm }) {
                     }`}
                 >
                   <option value="" disabled>Facturación *</option>
-                  <option value="9+ 1/2 IVA">9+ 1/2 IVA</option>
+                  <option value="9+ 1/2 IVA">9 + 1/2 IVA</option>
                   <option value="9 + IVA">9 + IVA</option>
                   <option value="9 + 10,5%">9 + 10,5%</option>
                 </select>
