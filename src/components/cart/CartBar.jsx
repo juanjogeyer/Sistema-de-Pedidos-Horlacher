@@ -43,7 +43,7 @@ export function CartBar({ cart, totalItems, onConfirm }) {
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-700">
                   <User size={16} />
                 </div>
                 <input
@@ -53,7 +53,7 @@ export function CartBar({ cart, totalItems, onConfirm }) {
                   placeholder="Cliente *"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="block w-full pl-9 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-black focus:bg-white focus:ring-1 focus:ring-black transition-colors text-sm"
+                  className="block w-full pl-9 pr-3 py-3 text-gray-600 border border-gray-200 rounded-xl focus:border-black focus:bg-white focus:ring-1 focus:ring-black transition-colors text-sm"
                 />
               </div>
 
@@ -62,9 +62,8 @@ export function CartBar({ cart, totalItems, onConfirm }) {
                   required
                   value={billing}
                   onChange={(e) => setBilling(e.target.value)}
-                  className={`block w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-brand-blue focus:bg-white focus:ring-1 focus:ring-brand-blue transition-colors text-sm appearance-none ${
-                    billing ? 'text-gray-900' : 'text-gray-400'
-                  }`}
+                  className={`block w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-brand-blue focus:bg-white focus:ring-1 focus:ring-brand-blue transition-colors text-sm appearance-none ${billing ? 'text-gray-900' : 'text-gray-600'
+                    }`}
                 >
                   <option value="" disabled>Facturación *</option>
                   <option value="9+ 1/2 IVA">9+ 1/2 IVA</option>
@@ -76,9 +75,8 @@ export function CartBar({ cart, totalItems, onConfirm }) {
                   required
                   value={express}
                   onChange={(e) => setExpress(e.target.value)}
-                  className={`block w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-brand-blue focus:bg-white focus:ring-1 focus:ring-brand-blue transition-colors text-sm appearance-none ${
-                    express ? 'text-gray-900' : 'text-gray-400'
-                  }`}
+                  className={`block w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-brand-blue focus:bg-white focus:ring-1 focus:ring-brand-blue transition-colors text-sm appearance-none ${express ? 'text-gray-900' : 'text-gray-600'
+                    }`}
                 >
                   <option value="" disabled>Expreso *</option>
                   <option value="Fernandez">Fernandez</option>
