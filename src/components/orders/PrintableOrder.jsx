@@ -25,17 +25,17 @@ export const PrintableOrder = forwardRef(({ order }, ref) => {
       <table className="w-full text-left border-collapse mb-8">
         <thead>
           <tr className="border-b-2 border-black">
-            <th className="py-2">Cant.</th>
+            <th className="py-2">Código</th>
             <th className="py-2">Producto</th>
-            <th className="py-2">Variante</th>
+            <th className="py-2">Cantidad</th>
           </tr>
         </thead>
         <tbody>
           {order.cart.map((item, idx) => (
             <tr key={idx} className="border-b border-gray-300">
-              <td className="py-2">{item.quantity}</td>
+              <td className="py-2">{item.code}</td>
               <td className="py-2">{item.name}</td>
-              <td className="py-2">{item.variant}</td>
+              <td className="py-2 text-center">{item.quantity}</td>
             </tr>
           ))}
         </tbody>
