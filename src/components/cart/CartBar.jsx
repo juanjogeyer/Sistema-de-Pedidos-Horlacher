@@ -11,7 +11,7 @@ export function CartBar({ cart, totalItems, onConfirm }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !billing || !express) return;
     onConfirm({ cart, name, billing, express });
     setOpen(false);
     setName('');
@@ -58,20 +58,37 @@ export function CartBar({ cart, totalItems, onConfirm }) {
               </div>
 
               <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Facturación (opcional)"
+                <select
+                  required
                   value={billing}
                   onChange={(e) => setBilling(e.target.value)}
-                  className="block w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-black focus:bg-white focus:ring-1 focus:ring-black transition-colors text-sm"
-                />
-                <input
-                  type="text"
-                  placeholder="Expreso (opcional)"
+                  className={`block w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-brand-blue focus:bg-white focus:ring-1 focus:ring-brand-blue transition-colors text-sm appearance-none ${
+                    billing ? 'text-gray-900' : 'text-gray-400'
+                  }`}
+                >
+                  <option value="" disabled>Facturación *</option>
+                  <option value="9+ 1/2 IVA">9+ 1/2 IVA</option>
+                  <option value="9 + IVA">9 + IVA</option>
+                  <option value="9 + 10,5%">9 + 10,5%</option>
+                </select>
+
+                <select
+                  required
                   value={express}
                   onChange={(e) => setExpress(e.target.value)}
-                  className="block w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-black focus:bg-white focus:ring-1 focus:ring-black transition-colors text-sm"
-                />
+                  className={`block w-full px-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:border-brand-blue focus:bg-white focus:ring-1 focus:ring-brand-blue transition-colors text-sm appearance-none ${
+                    express ? 'text-gray-900' : 'text-gray-400'
+                  }`}
+                >
+                  <option value="" disabled>Expreso *</option>
+                  <option value="Fernandez">Fernandez</option>
+                  <option value="Maldonado">Maldonado</option>
+                  <option value="Camion Propio">Camion Propio</option>
+                  <option value="Log Pic">Log Pic</option>
+                  <option value="Benito Escudero">Benito Escudero</option>
+                  <option value="Gonzalo">Gonzalo</option>
+                  <option value="Otro">Otro</option>
+                </select>
               </div>
 
               <button
