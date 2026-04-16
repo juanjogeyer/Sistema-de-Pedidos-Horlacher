@@ -3,16 +3,13 @@ import { Printer, Trash2 } from 'lucide-react';
 import { PrintableOrder } from './PrintableOrder';
 import html2pdf from 'html2pdf.js';
 
-export function PendingOrders({ orders, onPrintOrder, onRemoveOrder }) {
+export function OrderHistory({ history, onDeleteOrder }) {
   const [printingOrder, setPrintingOrder] = useState(null);
   const printRef = useRef(null);
 
   const handlePrint = (order) => {
     setPrintingOrder(order);
-    
-    // Allow React to render the PrintableOrder component
     setTimeout(async () => {
-      // First, trigger PDF download
       const element = printRef.current;
       if (element) {
         const dateStr = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
@@ -21,24 +18,19 @@ export function PendingOrders({ orders, onPrintOrder, onRemoveOrder }) {
           filename: `pedido-${order.name.replace(/\s+/g, '-')}-${dateStr}.pdf`,
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 2, useCORS: true, windowWidth: 800 },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
         };
         await html2pdf().set(opt).from(element).save();
       }
-
-      // Then trigger print dialog
       window.print();
-      
-      // Mover a historial (marcar como impreso)
-      onPrintOrder(order.id);
       setPrintingOrder(null);
     }, 500);
   };
 
-  if (orders.length === 0) {
+  if (history.length === 0) {
     return (
       <div className="py-16 text-center">
-        <p className="text-gray-400">No hay pedidos pendientes</p>
+        <p className="text-gray-400">No hay pedidos en el historial</p>
       </div>
     );
   }
@@ -46,14 +38,18 @@ export function PendingOrders({ orders, onPrintOrder, onRemoveOrder }) {
   return (
     <>
       <div className="space-y-4 p-4 print:hidden">
-        {orders.map((order) => {
+        {history.map((order) => {
           const totalItems = order.cart.reduce((sum, item) => sum + item.quantity, 0);
-          
           return (
-            <div key={order.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+            <div key={order.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 opacity-80">
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <h3 className="font-medium text-gray-900">{order.name}</h3>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h3 className="font-medium text-gray-900">{order.name}</h3>
+                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                      Impreso
+                    </span>
+                  </div>
                   {order.billing && <p className="text-sm text-gray-600">Facturación: {order.billing}</p>}
                   {order.express && <p className="text-sm text-gray-600">Expreso: {order.express}</p>}
                   <p className="text-xs text-gray-400 mt-1 flex gap-2">
@@ -80,17 +76,17 @@ export function PendingOrders({ orders, onPrintOrder, onRemoveOrder }) {
               <div className="flex gap-2">
                 <button
                   onClick={() => handlePrint(order)}
-                  className="flex-1 bg-brand-blue text-white px-4 py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-brand-blue-dark transition-colors"
+                  className="flex-1 bg-gray-700 text-white px-4 py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors"
                 >
                   <Printer size={18} />
-                  Imprimir
+                  Reimprimir
                 </button>
                 <button
-                  onClick={() => onRemoveOrder(order.id)}
-                  className="px-4 py-2.5 rounded-xl font-medium text-brand-red bg-brand-red-light hover:bg-red-100 transition-colors flex items-center justify-center"
-                  title="Eliminar pedido sin imprimir"
+                  onClick={() => onDeleteOrder(order.id)}
+                  className="px-3 py-2.5 rounded-xl bg-brand-red-light text-brand-red hover:text-black hover:bg-red-400 transition-colors flex items-center justify-center"
+                  title="Eliminar del historial"
                 >
-                  <Trash2 size={18} />
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>

@@ -8,12 +8,13 @@ import { FilterBar } from './components/layout/FilterBar';
 import { ProductList } from './components/products/ProductList';
 import { CartBar } from './components/cart/CartBar';
 import { PendingOrders } from './components/orders/PendingOrders';
+import { OrderHistory } from './components/orders/OrderHistory';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState('order'); // 'order' or 'pending'
+  const [activeTab, setActiveTab] = useState('order'); // 'order' | 'pending' | 'history'
   const { cart, totalItems, getQuantity, updateQuantity, clearCart } = useCart();
   const { category, setCategory, variant, setVariant, filteredProducts } = useFilter();
-  const { orders, addOrder, removeOrder } = useOrders();
+  const { orders, history, addOrder, printOrder, removeOrder, deleteHistoryOrder } = useOrders();
 
   const visible = filteredProducts(products);
 
@@ -30,19 +31,17 @@ export default function App() {
   const handleConfirmOrder = (orderData) => {
     addOrder(orderData);
     clearCart();
-    // Opcional: navegar a pendientes
-    // setActiveTab('pending');
   };
 
   return (
     <div className="min-h-screen pb-20">
       <div className="print:hidden">
-        <Header 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
+        <Header
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
           pendingCount={orders.length}
         />
-        
+
         {activeTab === 'order' && (
           <FilterBar
             category={category}
@@ -55,7 +54,7 @@ export default function App() {
       </div>
 
       <main className="max-w-xl mx-auto print:max-w-none print:m-0">
-        {activeTab === 'order' ? (
+        {activeTab === 'order' && (
           <>
             {visible.length === 0 ? (
               <p className="text-center text-gray-400 text-sm py-16">Sin productos en esta categoría</p>
@@ -70,10 +69,20 @@ export default function App() {
               <CartBar cart={cart} totalItems={totalItems} onConfirm={handleConfirmOrder} />
             </div>
           </>
-        ) : (
-          <PendingOrders orders={orders} onRemoveOrder={removeOrder} />
+        )}
+
+        {activeTab === 'pending' && (
+          <PendingOrders
+            orders={orders}
+            onPrintOrder={printOrder}
+            onRemoveOrder={removeOrder}
+          />
+        )}
+
+        {activeTab === 'history' && (
+          <OrderHistory history={history} onDeleteOrder={deleteHistoryOrder} />
         )}
       </main>
     </div>
   );
-}
+}

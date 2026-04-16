@@ -24,7 +24,7 @@ export function Header({ activeTab, setActiveTab, pendingCount }) {
         </div>
       </div>
       
-      <div className="max-w-xl mx-auto px-4 flex gap-4 mt-2">
+      <div className="max-w-2xl mx-auto px-4 flex gap-4 mt-2">
         <button
           onClick={() => setActiveTab('order')}
           className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
@@ -49,6 +49,16 @@ export function Header({ activeTab, setActiveTab, pendingCount }) {
               {pendingCount}
             </span>
           )}
+        </button>
+        <button
+          onClick={() => setActiveTab('history')}
+          className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+            activeTab === 'history'
+              ? 'border-brand-blue text-brand-blue'
+              : 'border-transparent text-gray-500 hover:text-gray-700'
+          }`}
+        >
+          Historial
         </button>
       </div>
     </header>
