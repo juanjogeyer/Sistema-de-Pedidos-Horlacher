@@ -3,6 +3,44 @@ import { supabase } from '../lib/supabase';
 
 const POLL_INTERVAL = 8000;
 
+const TELEGRAM_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID;
+
+async function notificarTelegram(order) {
+  if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.warn('Telegram: credenciales no configuradas, notificación omitida.');
+    return;
+  }
+
+  const totalItems = (order.cart ?? []).reduce((sum, item) => sum + (item.qty ?? 1), 0);
+
+  const mensaje =
+    `🛒 *Nuevo pedido confirmado*\n` +
+    `━━━━━━━━━━━━━━━━━━━━\n` +
+    `👤 *Cliente:* ${order.name}\n` +
+    `🧾 *Facturación:* ${order.billing}\n` +
+    `🚚 *Expreso:* ${order.express}\n` +
+    `📦 *Total de ítems:* ${totalItems}\n` +
+    `━━━━━━━━━━━━━━━━━━━━`;
+
+  const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: TELEGRAM_CHAT_ID,
+      text: mensaje,
+      parse_mode: 'Markdown',
+    }),
+  });
+
+  if (!response.ok) {
+    const err = await response.json();
+    throw new Error(`Telegram API error: ${err.description}`);
+  }
+}
+
 export function useOrders() {
   const [orders, setOrders] = useState([]);       // pendientes
   const [history, setHistory] = useState([]);     // impresos
@@ -63,6 +101,13 @@ export function useOrders() {
     if (error) {
       console.error('Error al guardar pedido:', error.message);
       setOrders(prev => prev.filter(o => o.id !== newOrder.id));
+      return;
+    }
+
+    try {
+      await notificarTelegram(newOrder);
+    } catch (telegramError) {
+      console.error('Error al enviar notificación a Telegram:', telegramError.message);
     }
   };
 
