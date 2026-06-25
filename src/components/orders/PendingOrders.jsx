@@ -1,7 +1,8 @@
 import { useState, useRef } from 'react';
 import { Printer, Trash2 } from 'lucide-react';
 import { PrintableOrder } from './PrintableOrder';
-import html2pdf from 'html2pdf.js';
+import html2canvas from 'html2canvas';
+import { jsPDF } from 'jspdf';
 
 export function PendingOrders({ orders, onPrintOrder, onRemoveOrder }) {
   const [printingOrder, setPrintingOrder] = useState(null);
@@ -9,29 +10,45 @@ export function PendingOrders({ orders, onPrintOrder, onRemoveOrder }) {
 
   const handlePrint = (order) => {
     setPrintingOrder(order);
-    
-    // Allow React to render the PrintableOrder component
-    setTimeout(async () => {
-      // First, trigger PDF download
-      const element = printRef.current;
-      if (element) {
-        const dateStr = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
-        const opt = {
-          margin: 10,
-          filename: `pedido-${order.name.replace(/\s+/g, '-')}-${dateStr}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, windowWidth: 800 },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        await html2pdf().set(opt).from(element).save();
-      }
 
-      // Then trigger print dialog
-      window.print();
-      
-      // Mover a historial (marcar como impreso)
-      onPrintOrder(order.id);
-      setPrintingOrder(null);
+    setTimeout(async () => {
+      try {
+        const element = printRef.current;
+        if (element) {
+          const dateStr = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
+          const filename = `pedido-${order.name.replace(/\s+/g, '-')}-${dateStr}.pdf`;
+
+          const canvas = await html2canvas(element, { scale: 2, useCORS: true, allowTaint: true, logging: false, windowWidth: 800 });
+          const imgData = canvas.toDataURL('image/jpeg', 0.98);
+
+          const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+          const margin = 10;
+          const maxW = pdf.internal.pageSize.getWidth() - margin * 2;
+          const maxH = pdf.internal.pageSize.getHeight() - margin * 2;
+
+          const imgWmm = (canvas.width / 2) * 0.2646;
+          const imgHmm = (canvas.height / 2) * 0.2646;
+          const ratio = Math.min(maxW / imgWmm, maxH / imgHmm);
+
+          pdf.addImage(imgData, 'JPEG', margin, margin, imgWmm * ratio, imgHmm * ratio);
+          pdf.save(filename);
+        }
+
+        // Scale print dialog to fit one A4 page
+        const A4_HEIGHT_PX = 1046; // 277mm at 96dpi
+        if (element && element.scrollHeight > A4_HEIGHT_PX) {
+          element.style.zoom = `${(A4_HEIGHT_PX / element.scrollHeight) * 100}%`;
+        }
+
+        window.print();
+        if (element) element.style.zoom = '';
+        onPrintOrder(order.id);
+      } catch (err) {
+        alert('Error al generar PDF: ' + err.message);
+        console.error(err);
+      } finally {
+        setPrintingOrder(null);
+      }
     }, 500);
   };
 

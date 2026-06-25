@@ -6,17 +6,19 @@ export function CartBar({ cart, totalItems, onConfirm }) {
   const [name, setName] = useState('');
   const [billing, setBilling] = useState('');
   const [express, setExpress] = useState('');
+  const [notes, setNotes] = useState('');
 
   if (totalItems === 0) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name.trim() || !billing || !express) return;
-    onConfirm({ cart, name, billing, express });
+    onConfirm({ cart, name, billing, express, notes });
     setOpen(false);
     setName('');
     setBilling('');
     setExpress('');
+    setNotes('');
   };
 
   return (
@@ -89,6 +91,14 @@ export function CartBar({ cart, totalItems, onConfirm }) {
                   <option value="Otro">Otro</option>
                 </select>
               </div>
+
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Observaciones (opcional)"
+                rows={2}
+                className="block w-full px-3 py-3 text-gray-600 border border-gray-200 rounded-xl focus:border-black focus:bg-white focus:ring-1 focus:ring-black transition-colors text-sm resize-none"
+              />
 
               <button
                 type="submit"

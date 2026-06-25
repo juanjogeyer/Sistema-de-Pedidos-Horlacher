@@ -21,6 +21,7 @@ async function notificarTelegram(order) {
     `🧾 *Facturación:* ${order.billing}\n` +
     `🚚 *Expreso:* ${order.express}\n` +
     `📦 *Total de ítems:* ${totalItems}\n` +
+    (order.notes ? `📝 *Observaciones:* ${order.notes}\n` : '') +
     `━━━━━━━━━━━━━━━━━━━━`;
 
   const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;

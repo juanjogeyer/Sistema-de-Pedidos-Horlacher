@@ -20,6 +20,7 @@ export const PrintableOrder = forwardRef(({ order }, ref) => {
         <p className="text-lg"><strong>Cliente:</strong> {order.name}</p>
         {order.billing && <p className="text-lg"><strong>Facturación:</strong> {order.billing}</p>}
         {order.express && <p className="text-lg"><strong>Expreso:</strong> {order.express}</p>}
+        {order.notes && <p className="text-lg"><strong>Observaciones:</strong> {order.notes}</p>}
       </div>
 
       <table className="w-full text-left border-collapse mb-8">
@@ -44,10 +45,6 @@ export const PrintableOrder = forwardRef(({ order }, ref) => {
       <div className="flex justify-between items-center border-t-2 border-black pt-4">
         <span className="text-xl font-bold">Total Ítems:</span>
         <span className="text-xl font-bold">{totalItems}</span>
-      </div>
-
-      <div className="mt-12 text-center text-sm text-gray-500">
-        ¡Gracias por tu pedido!
       </div>
     </div>
   );
