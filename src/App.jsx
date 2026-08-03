@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useCart } from './hooks/useCart';
 import { useFilter } from './hooks/useFilter';
 import { useOrders } from './hooks/useOrders';
-import { products } from './data/products';
+import { products, VARIANTS } from './data/products';
 import { Header } from './components/layout/Header';
 import { FilterBar } from './components/layout/FilterBar';
 import { ProductList } from './components/products/ProductList';
@@ -19,8 +19,9 @@ export default function App() {
   const visible = filteredProducts(products);
 
   // Determinar variantes disponibles y autoseleccionar si la actual no es válida
+  const variantOrder = VARIANTS.map(v => v.id);
   const availableVariants = [...new Set(products.filter(p => p.category === category).map(p => p.variant))]
-    .sort((a, b) => ['bulto', 'granel'].indexOf(a) - ['bulto', 'granel'].indexOf(b));
+    .sort((a, b) => variantOrder.indexOf(a) - variantOrder.indexOf(b));
 
   useEffect(() => {
     if (availableVariants.length > 0 && !availableVariants.includes(variant)) {

@@ -87,8 +87,8 @@ export function PendingOrders({ orders, onPrintOrder, onRemoveOrder }) {
                 <ul className="space-y-1">
                   {order.cart.map((item, i) => (
                     <li key={i} className="flex gap-2">
-                      <span className="font-medium">{item.quantity}x</span>
-                      <span className="truncate">{item.name}</span>
+                      <span className="font-medium flex-shrink-0">{item.quantity}x</span>
+                      <span>{item.name}</span>
                     </li>
                   ))}
                 </ul>

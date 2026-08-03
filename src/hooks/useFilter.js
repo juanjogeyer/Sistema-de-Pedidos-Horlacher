@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 export function useFilter() {
   const [category, setCategory] = useState('snacks');
-  const [variant, setVariant] = useState('bulto');
+  const [variant, setVariant] = useState('grande');
 
   function filteredProducts(products) {
     return products.filter((p) => {

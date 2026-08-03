@@ -1,17 +1,21 @@
 /* eslint-disable no-console */
-// Actualiza precios de src/data/products.js desde Excel.
-// Uso:
-//   node scripts/update-prices.js [archivo.xlsx] [--mode=bulto|unidad]
+// Sincroniza el catálogo src/data/products.js contra el Excel de lista.
+// El catálogo ya NO guarda precios: el script solo detecta altas y bajas.
 //
-// --mode=bulto  (default) → lee columna DERECHA del Excel.
+// Uso:
+//   node scripts/update-prices.js [archivo.xlsx] [--mode=grande|unidad]
+//
+// --mode=grande (default) → lee columna DERECHA del Excel.
 // --mode=unidad           → lee columna IZQUIERDA del Excel.
 // Sección GRANEL: siempre lee AMBAS columnas (variant='granel').
 //
 // Sin archivo: busca en LISTA_DIR el "LISTA MAYORISTA YY-MM-DD.xlsx" más reciente.
-// Códigos existentes: actualiza `price`. Códigos nuevos: agrega como 'snacks'.
+// Códigos nuevos: los agrega como 'snacks' (revisar category/variant a mano).
+// Códigos existentes: NO se tocan, solo se reportan los que no están en el Excel
+// y los que tienen el nombre distinto.
 
 // Comando para ejecutar:
-// npm run update-prices 
+// npm run update-prices
 
 import XLSX from 'xlsx';
 import fs from 'fs';
@@ -51,7 +55,7 @@ function findLatestLista() {
 
 // Parsear argumentos
 const args = process.argv.slice(2);
-let mode = 'bulto';
+let mode = 'grande';
 let fileArg = null;
 for (const a of args) {
   if (a.startsWith('--mode=')) {
@@ -60,8 +64,9 @@ for (const a of args) {
     fileArg = a;
   }
 }
-if (!['bulto', 'unidad'].includes(mode)) {
-  console.error(`--mode inválido: "${mode}". Valores: bulto | unidad`);
+if (mode === 'bulto') mode = 'grande'; // alias viejo
+if (!['grande', 'unidad'].includes(mode)) {
+  console.error(`--mode inválido: "${mode}". Valores: grande | unidad`);
   process.exit(1);
 }
 
@@ -83,22 +88,21 @@ const norm = (v) => String(v ?? '').trim();
 
 // Excel tiene dos pares de columnas (izq=unidad, der=bulto) por header row.
 // Regla:
-//   - mode=bulto  → secciones normales: solo DERECHA
+//   - mode=grande → secciones normales: solo DERECHA
 //   - mode=unidad → secciones normales: solo IZQUIERDA
 //   - sección GRANEL → siempre AMBAS, variant='granel'
 let leftCodigoCol = -1, leftNombreCol = -1, leftPrecioCol = -1;
 let rightCodigoCol = -1, rightNombreCol = -1, rightPrecioCol = -1;
 let currentSection = 'normal'; // 'normal' | 'granel'
 
-const excelEntries = new Map(); // code -> { price, name, variant }
+const excelEntries = new Map(); // code -> { name, variant }
 
-const parsePrice = (raw) => {
-  if (typeof raw === 'number' && raw > 0) return Math.round(raw);
-  if (typeof raw === 'string') {
-    const cleaned = raw.replace(/\./g, '').replace(/[^\d]/g, '');
-    if (cleaned) return parseInt(cleaned, 10);
-  }
-  return null;
+// El precio ya no se guarda, pero sigue siendo la señal de que la fila es un
+// producto real (las filas de relleno del Excel no tienen precio).
+const hasPrice = (raw) => {
+  if (typeof raw === 'number' && raw > 0) return true;
+  if (typeof raw === 'string') return /\d/.test(raw.replace(/[^\d]/g, ''));
+  return false;
 };
 
 const tryReadEntry = (row, codigoCol, nombreCol, precioCol, variant) => {
@@ -106,10 +110,9 @@ const tryReadEntry = (row, codigoCol, nombreCol, precioCol, variant) => {
   const codeRaw = norm(row[codigoCol]);
   if (!/^\d{1,4}$/.test(codeRaw)) return;
   const code = codeRaw.padStart(4, '0');
-  const price = parsePrice(row[precioCol]);
-  if (!price) return;
+  if (!hasPrice(row[precioCol])) return;
   const name = norm(row[nombreCol]);
-  excelEntries.set(code, { price, name, variant });
+  excelEntries.set(code, { name, variant });
 };
 
 for (const row of grid) {
@@ -146,8 +149,8 @@ for (const row of grid) {
   if (currentSection === 'granel') {
     tryReadEntry(row, leftCodigoCol, leftNombreCol, leftPrecioCol, 'granel');
     tryReadEntry(row, rightCodigoCol, rightNombreCol, rightPrecioCol, 'granel');
-  } else if (mode === 'bulto') {
-    tryReadEntry(row, rightCodigoCol, rightNombreCol, rightPrecioCol, 'bulto');
+  } else if (mode === 'grande') {
+    tryReadEntry(row, rightCodigoCol, rightNombreCol, rightPrecioCol, 'grande');
   } else {
     tryReadEntry(row, leftCodigoCol, leftNombreCol, leftPrecioCol, 'unidad');
   }
@@ -155,57 +158,66 @@ for (const row of grid) {
 
 console.log(`Filas leídas del Excel: ${excelEntries.size}`);
 
-// ─── 2. Actualizar precios en products.js ───────────────────────────
+// ─── 2. Leer catálogo actual ────────────────────────────────────────
 let source = fs.readFileSync(PRODUCTS_PATH, 'utf8');
-const existingCodes = new Set();
-let updated = 0;
-let kept = 0;
+const existing = new Map(); // code -> name en products.js
 
-source = source.split('\n').map(line => {
+for (const line of source.split('\n')) {
   const m = line.match(/code:\s*'(\d+)'/);
-  if (!m) return line;
-  const code = m[1];
-  existingCodes.add(code);
-  const entry = excelEntries.get(code);
-  if (!entry) return line;
-
-  return line.replace(/(price:\s*)(\d+)/, (_, p, oldPrice) => {
-    if (parseInt(oldPrice, 10) === entry.price) {
-      kept++;
-      return p + oldPrice;
-    }
-    updated++;
-    console.log(`  ${code}: ${oldPrice} → ${entry.price}`);
-    return p + entry.price;
-  });
-}).join('\n');
-
-// ─── 3. Agregar códigos nuevos al final ─────────────────────────────
-const newCodes = [...excelEntries.keys()].filter(c => !existingCodes.has(c)).sort();
-if (newCodes.length > 0) {
-  const niceName = (s) => s
-    .toLowerCase()
-    .replace(/\s+/g, ' ')
-    .replace(/^./, c => c.toUpperCase());
-
-  const block = newCodes.map(code => {
-    const { price, name, variant } = excelEntries.get(code);
-    return `  { code: '${code}', name: '${niceName(name)}', category: 'snacks', variant: '${variant}', price: ${price} },`;
-  }).join('\n');
-
-  const banner = `\n  // ─── NUEVOS DESDE EXCEL — REVISAR NAME/CATEGORY ─────────────\n`;
-  source = source.replace(/(\n\];)/, `\n${banner}${block}\n$1`);
+  if (!m) continue;
+  const nameMatch = line.match(/name:\s*'([^']*)'/);
+  existing.set(m[1], nameMatch ? nameMatch[1] : '');
 }
 
-fs.writeFileSync(PRODUCTS_PATH, source, 'utf8');
+// ─── 3. Agregar códigos nuevos al final ─────────────────────────────
+const niceName = (s) => s
+  .toLowerCase()
+  .replace(/\s+/g, ' ')
+  .replace(/^./, c => c.toUpperCase());
+
+const newCodes = [...excelEntries.keys()].filter(c => !existing.has(c)).sort();
+if (newCodes.length > 0) {
+  const block = newCodes.map(code => {
+    const { name, variant } = excelEntries.get(code);
+    return `  { code: '${code}', name: '${niceName(name)}', category: 'snacks', variant: '${variant}' },`;
+  }).join('\n');
+
+  const banner = `\n  // ─── NUEVOS DESDE EXCEL — REVISAR NAME/CATEGORY/VARIANT ─────\n`;
+
+  // Insertar al cierre del array `products`, no en el primer array del archivo
+  const arrayStart = source.indexOf('export const products = [');
+  const arrayEnd = arrayStart === -1 ? -1 : source.indexOf('\n];', arrayStart);
+  if (arrayEnd === -1) {
+    console.error('No encuentro el cierre de `export const products = [` en products.js');
+    process.exit(1);
+  }
+  source = source.slice(0, arrayEnd) + `\n${banner}${block}` + source.slice(arrayEnd);
+  fs.writeFileSync(PRODUCTS_PATH, source, 'utf8');
+}
 
 // ─── 4. Reporte ─────────────────────────────────────────────────────
-const notInExcel = [...existingCodes].filter(c => !excelEntries.has(c));
+const notInExcel = [...existing.keys()].filter(c => !excelEntries.has(c));
+
+// Nombres que difieren (no se tocan: los del catálogo están corregidos a mano).
+// Se ignoran tildes, puntos finales y espacios de más: son ruido del Excel.
+const flat = (s) => s
+  .toLowerCase()
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/\s+/g, ' ')
+  .replace(/[.\s]+$/, '')
+  .trim();
+const renamed = [...excelEntries.entries()]
+  .filter(([code, e]) => existing.has(code) && flat(existing.get(code)) !== flat(niceName(e.name)))
+  .map(([code, e]) => `  ${code}: "${existing.get(code)}"  ≠  Excel: "${niceName(e.name)}"`);
 
 console.log('');
-console.log(`Precios actualizados:    ${updated}`);
-console.log(`Sin cambio (igual):      ${kept}`);
+console.log(`Productos en catálogo:   ${existing.size}`);
 console.log(`Nuevos agregados:        ${newCodes.length}`);
 console.log(`Existentes no en Excel:  ${notInExcel.length}`);
+console.log(`Nombres distintos:       ${renamed.length}`);
 if (newCodes.length) console.log(`  Nuevos: ${newCodes.join(', ')}`);
 if (notInExcel.length) console.log(`  Sin match en Excel: ${notInExcel.join(', ')}`);
+if (renamed.length) {
+  console.log('  Revisar nombres (no se modifican solos):');
+  renamed.forEach(l => console.log(l));
+}

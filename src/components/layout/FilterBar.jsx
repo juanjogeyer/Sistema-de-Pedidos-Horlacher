@@ -1,7 +1,8 @@
-import { CATEGORIES } from '../../data/products';
+import { CATEGORIES, VARIANTS } from '../../data/products';
 
-export function FilterBar({ category, onCategoryChange, variant, onVariantChange, availableVariants = ['bulto', 'granel'] }) {
+export function FilterBar({ category, onCategoryChange, variant, onVariantChange, availableVariants = ['grande', 'granel'] }) {
   const showVariantToggle = availableVariants.length > 1;
+  const variantLabel = (id) => VARIANTS.find(v => v.id === id)?.label ?? id;
 
   return (
     <div className="sticky top-[105px] z-10 bg-white border-b border-gray-200">
@@ -35,7 +36,7 @@ export function FilterBar({ category, onCategoryChange, variant, onVariantChange
                   : 'bg-gray-100 text-gray-500 hover:bg-brand-blue-light hover:text-brand-blue'
                 }`}
             >
-              {v === 'bulto' ? 'Por Bulto' : 'A Granel'}
+              {variantLabel(v)}
             </button>
           ))}
         </div>

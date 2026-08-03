@@ -1,11 +1,6 @@
 import { Plus, Minus } from 'lucide-react';
 import { useLongPress } from '../../hooks/useLongPress';
 
-const formatPrice = (price) => {
-  if (price === 0) return 'Consultar';
-  return new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS', maximumFractionDigits: 0 }).format(price);
-};
-
 export function ProductCard({ product, quantity, onUpdate }) {
   const minusProps = useLongPress(() => {
     if (quantity > 0) onUpdate(product, -1);
@@ -15,10 +10,9 @@ export function ProductCard({ product, quantity, onUpdate }) {
   });
   return (
     <div className={`flex items-center gap-3 px-4 py-3 border-b border-gray-100 transition-colors ${quantity > 0 ? 'bg-brand-blue-light' : 'bg-white'}`}>
-      {/* Name + price */}
+      {/* Name */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-gray-900 leading-snug truncate">{product.name}</p>
-        <p className="text-xs font-semibold text-gray-500 mt-0.5">{formatPrice(product.price)}</p>
+        <p className="text-sm text-gray-900 leading-snug">{product.name}</p>
       </div>
 
       {/* Qty controls */}
