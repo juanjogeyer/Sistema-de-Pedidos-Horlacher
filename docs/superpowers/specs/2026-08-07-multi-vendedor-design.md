@@ -33,7 +33,7 @@ lo mismo ni de saltear un pedido.
 | Schema | Vive solo en el dashboard de Supabase. No hay migraciones en el repo. |
 | Impresión | La hace el vendedor desde `PendingOrders.jsx`; marca `printed=true` y el pedido pasa a Historial. |
 | Tests | No hay. Ni framework ni script. |
-| Deploy | Manual: `npm run build` y subir. Sin CI. |
+| Deploy | Vercel conectado a GitHub. Todo push a `main` redeploya producción. |
 
 ### Deuda encontrada al explorar
 
@@ -149,18 +149,45 @@ ejecuta automáticamente: el SQL se corre a mano en el editor del dashboard.
 ### Orden de la migración
 
 Importa, porque mientras se toca la base hay código viejo corriendo en los
-celulares:
+celulares. Y como Vercel deploya solo al mergear, **el merge del PR es el paso
+3**: no hay forma de deployar antes ni después, así que la secuencia se ordena
+alrededor de ese momento.
 
 1. `ALTER TABLE orders ADD COLUMN seller_id text;` — nullable. El código viejo
    sigue insertando sin problema.
 2. `UPDATE orders SET seller_id = 'eduardo' WHERE seller_id IS NULL;`
-3. **Deploy del código nuevo.** Desde acá todo pedido trae `seller_id`.
+3. **Merge del PR `dev` → `main`.** Vercel deploya. Desde acá todo pedido nuevo
+   trae `seller_id`.
 4. Repetir el `UPDATE` del paso 2, para barrer lo que haya entrado entre 2 y 3.
 5. `ALTER TABLE orders ALTER COLUMN seller_id SET NOT NULL;`
 
-Poner el `NOT NULL` antes del deploy hace fallar todo envío desde una pestaña
-que todavía tenga el código viejo. Los pasos 4 y 5 pueden esperar al día
-siguiente sin consecuencias.
+Poner el `NOT NULL` antes del merge hace fallar todo envío desde una pestaña que
+todavía tenga el código viejo. Los pasos 1 y 2 pueden correrse tranquilos días
+antes: agregar una columna nullable no rompe nada. Los pasos 4 y 5 pueden
+esperar al día siguiente.
+
+## Flujo de trabajo y deploy
+
+El cambio se desarrolla en la rama `dev` y llega a producción por un PR a
+`main`. Nada toca producción hasta ese merge.
+
+**Preview deploys apagados.** Vercel genera una URL por rama, y esa preview
+usaría las mismas variables de entorno que producción — o sea, la base real. Se
+desactivan para `dev` con un `vercel.json` en el repo:
+
+```json
+{ "git": { "deploymentEnabled": { "dev": false } } }
+```
+
+En el repo y no en el dashboard a propósito: así la regla es visible, revisable
+en el PR, y sobrevive a que alguien toque la configuración.
+
+**Testing.** Los 13 tests automatizados mockean el cliente de Supabase y no
+tocan ninguna base. El recorrido manual se hace con `npm run dev`, que apunta a
+donde diga `.env`. Hoy eso es producción: el recorrido manual se hace con
+nombres de cliente obviamente falsos, y se borran al terminar. Si en algún
+momento se quiere una base de juguete, `.env.local` ya está en `.gitignore` y
+pisa a `.env` sin tocar nada más.
 
 ---
 
@@ -226,6 +253,7 @@ src/
   config/users.js               ← NUEVO
 supabase/
   migrations/001-seller-id.sql  ← NUEVO
+vercel.json                     ← NUEVO: apaga los preview deploys de dev
 ```
 
 **Sin cambios:** `CartBar`, `ProductList`, `ProductCard`, `FilterBar`,
@@ -439,6 +467,8 @@ export function OrderCard({ order, showSeller = false, actions = null }) {
 - Commitear PIN reales distintos a los del config, ni credenciales.
 - Ejecutar el SQL de migración automáticamente desde la app.
 - Borrar pedidos sin las guardas de rol y de `printed`.
+- Pushear a `main`. Todo va por PR desde `dev`, porque un push a `main`
+  redeploya producción al instante.
 
 ---
 
