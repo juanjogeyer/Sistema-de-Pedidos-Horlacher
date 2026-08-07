@@ -8,4 +8,9 @@ dist/assets
 
 # Bytecode de los scripts python de las skills
 __pycache__/
-*.pyc
+*.pyc
+
+# Store del CLI `npx skills add`. Symlinkea a .claude/skills/ con rutas
+# absolutas que no sobreviven a git en Windows (core.symlinks=false), asi que
+# las skills se aplanan a directorios reales dentro de .claude/skills/.
+.agents/
