@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // Sincroniza el catálogo src/data/products.js contra el Excel de lista.
 // El catálogo ya NO guarda precios: el script solo detecta altas y bajas.
 //

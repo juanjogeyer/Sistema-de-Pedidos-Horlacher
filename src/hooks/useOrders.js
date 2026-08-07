@@ -70,6 +70,11 @@ export function useOrders() {
   }, [fetchOrders, fetchHistory]);
 
   useEffect(() => {
+    // La carga inicial es exactamente "traer datos de un sistema externo al
+    // montar". La regla apunta a setState sincrono dentro del efecto; aca
+    // fetchAll es async y setea recien cuando responde Supabase. Sin libreria
+    // de data fetching, este es el patron.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAll();
 
     // Real-time: cualquier cambio en la tabla actualiza ambas listas

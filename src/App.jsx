@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useCart } from './hooks/useCart';
 import { useFilter } from './hooks/useFilter';
 import { useOrders } from './hooks/useOrders';
@@ -18,16 +18,20 @@ export default function App() {
 
   const visible = filteredProducts(products);
 
-  // Determinar variantes disponibles y autoseleccionar si la actual no es válida
-  const variantOrder = VARIANTS.map(v => v.id);
-  const availableVariants = [...new Set(products.filter(p => p.category === category).map(p => p.variant))]
-    .sort((a, b) => variantOrder.indexOf(a) - variantOrder.indexOf(b));
+  // Determinar variantes disponibles y autoseleccionar si la actual no es válida.
+  // Memoizado para que la referencia sea estable y el efecto de abajo pueda
+  // depender del array en vez de una expresión armada en el propio array de deps.
+  const availableVariants = useMemo(() => {
+    const variantOrder = VARIANTS.map(v => v.id);
+    return [...new Set(products.filter(p => p.category === category).map(p => p.variant))]
+      .sort((a, b) => variantOrder.indexOf(a) - variantOrder.indexOf(b));
+  }, [category]);
 
   useEffect(() => {
     if (availableVariants.length > 0 && !availableVariants.includes(variant)) {
       setVariant(availableVariants[0]);
     }
-  }, [availableVariants.join(','), variant, setVariant]);
+  }, [availableVariants, variant, setVariant]);
 
   const handleConfirmOrder = (orderData) => {
     addOrder(orderData);
