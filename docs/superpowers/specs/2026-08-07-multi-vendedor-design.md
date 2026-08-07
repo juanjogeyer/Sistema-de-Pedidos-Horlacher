@@ -1,7 +1,7 @@
 # Spec: Multi-vendedor con roles y cola de impresión
 
 - **Fecha:** 2026-08-07
-- **Estado:** aprobado, pendiente de plan de implementación
+- **Estado:** aprobado. Sin preguntas abiertas.
 - **Proyecto:** Sistema de Pedidos Horlacher
 
 ---
@@ -88,7 +88,7 @@ la que se escribirían esas policies.
 ## Asunciones
 
 1. Los pedidos que ya están en la base los cargó **Eduardo Horlacher** y se le
-   asignan a él. *(Pendiente de confirmación explícita.)*
+   asignan a él. *(Confirmado por el dueño del producto el 2026-08-07.)*
 2. Los tres usuarios son estables. Sumar un cuarto implica editar código,
    rebuild y subir — y eso es aceptable.
 3. El admin no carga pedidos. Si algún día lo necesita, entra como vendedor.
@@ -503,8 +503,25 @@ export function OrderCard({ order, showSeller = false, actions = null }) {
 
 ---
 
+## Decisiones de alcance del PR
+
+Todo va en un solo PR de `dev` a `main`, en commits separados para que el diff
+se lea por partes.
+
+La unificación de PDF y la corrección de dependencias no son un extra: son
+prerequisito. `useOrderPrinting.js` es cómo el admin comparte una sola
+implementación entre Cola de impresión y Reimprimir — sin unificar, `AdminApp`
+nace con las dos copias divergentes adentro. Y declarar `html2canvas`/`jspdf`
+hace falta para que los tests los importen sin depender de que `html2pdf.js`
+siga arrastrándolos como dependencias transitivas.
+
+Separarlo en dos PRs dejaría al primero tocando archivos que el segundo
+reescribe.
+
+---
+
 ## Preguntas abiertas
 
-1. **Confirmar que los pedidos históricos son de Eduardo Horlacher.** Si alguno
-   era de otra persona, cambia el `UPDATE` de la migración.
-</content>
+Ninguna. La atribución de los pedidos históricos a Eduardo Horlacher quedó
+confirmada el 2026-08-07 y está registrada en Asunciones.
+
