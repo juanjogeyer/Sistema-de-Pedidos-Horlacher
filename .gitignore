@@ -1,4 +1,11 @@
 node_modules
 dist/assets
 .env
-.env.local
+.env.local
+
+# Permisos por maquina, no compartidos
+.claude/settings.local.json
+
+# Bytecode de los scripts python de las skills
+__pycache__/
+*.pyc
