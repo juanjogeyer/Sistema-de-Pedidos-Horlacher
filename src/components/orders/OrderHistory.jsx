@@ -1,31 +1,10 @@
-import { useState, useRef } from 'react';
 import { Printer, Trash2 } from 'lucide-react';
 import { PrintableOrder } from './PrintableOrder';
-import html2pdf from 'html2pdf.js';
+import { useOrderPrinting } from '../../hooks/useOrderPrinting';
 
 export function OrderHistory({ history, onDeleteOrder }) {
-  const [printingOrder, setPrintingOrder] = useState(null);
-  const printRef = useRef(null);
-
-  const handlePrint = (order) => {
-    setPrintingOrder(order);
-    setTimeout(async () => {
-      const element = printRef.current;
-      if (element) {
-        const dateStr = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
-        const opt = {
-          margin: 10,
-          filename: `pedido-${order.name.replace(/\s+/g, '-')}-${dateStr}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, windowWidth: 800 },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-        };
-        await html2pdf().set(opt).from(element).save();
-      }
-      window.print();
-      setPrintingOrder(null);
-    }, 500);
-  };
+  // Reimprimir no cambia nada en la base: solo regenera el PDF.
+  const { printingOrder, printRef, printOrder } = useOrderPrinting();
 
   if (history.length === 0) {
     return (
@@ -75,7 +54,7 @@ export function OrderHistory({ history, onDeleteOrder }) {
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => handlePrint(order)}
+                  onClick={() => printOrder(order)}
                   className="flex-1 bg-gray-700 text-white px-4 py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-gray-800 transition-colors"
                 >
                   <Printer size={18} />

@@ -1,56 +1,17 @@
-import { useState, useRef } from 'react';
+import { useCallback } from 'react';
 import { Printer, Trash2 } from 'lucide-react';
 import { PrintableOrder } from './PrintableOrder';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
+import { useOrderPrinting } from '../../hooks/useOrderPrinting';
 
 export function PendingOrders({ orders, onPrintOrder, onRemoveOrder }) {
-  const [printingOrder, setPrintingOrder] = useState(null);
-  const printRef = useRef(null);
-
-  const handlePrint = (order) => {
-    setPrintingOrder(order);
-
-    setTimeout(async () => {
-      try {
-        const element = printRef.current;
-        if (element) {
-          const dateStr = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
-          const filename = `pedido-${order.name.replace(/\s+/g, '-')}-${dateStr}.pdf`;
-
-          const canvas = await html2canvas(element, { scale: 2, useCORS: true, allowTaint: true, logging: false, windowWidth: 800 });
-          const imgData = canvas.toDataURL('image/jpeg', 0.98);
-
-          const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-          const margin = 10;
-          const maxW = pdf.internal.pageSize.getWidth() - margin * 2;
-          const maxH = pdf.internal.pageSize.getHeight() - margin * 2;
-
-          const imgWmm = (canvas.width / 2) * 0.2646;
-          const imgHmm = (canvas.height / 2) * 0.2646;
-          const ratio = Math.min(maxW / imgWmm, maxH / imgHmm);
-
-          pdf.addImage(imgData, 'JPEG', margin, margin, imgWmm * ratio, imgHmm * ratio);
-          pdf.save(filename);
-        }
-
-        // Scale print dialog to fit one A4 page
-        const A4_HEIGHT_PX = 1046; // 277mm at 96dpi
-        if (element && element.scrollHeight > A4_HEIGHT_PX) {
-          element.style.zoom = `${(A4_HEIGHT_PX / element.scrollHeight) * 100}%`;
-        }
-
-        window.print();
-        if (element) element.style.zoom = '';
-        onPrintOrder(order.id);
-      } catch (err) {
-        alert('Error al generar PDF: ' + err.message);
-        console.error(err);
-      } finally {
-        setPrintingOrder(null);
-      }
-    }, 500);
-  };
+  // Imprimir marca el pedido como impreso: pasa a Historial.
+  const handleAfterPrint = useCallback(
+    (order) => onPrintOrder(order.id),
+    [onPrintOrder]
+  );
+  const { printingOrder, printRef, printOrder } = useOrderPrinting({
+    onAfterPrint: handleAfterPrint,
+  });
 
   if (orders.length === 0) {
     return (
@@ -96,7 +57,7 @@ export function PendingOrders({ orders, onPrintOrder, onRemoveOrder }) {
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => handlePrint(order)}
+                  onClick={() => printOrder(order)}
                   className="flex-1 bg-brand-blue text-white px-4 py-2.5 rounded-xl font-medium flex items-center justify-center gap-2 hover:bg-brand-blue-dark transition-colors"
                 >
                   <Printer size={18} />
