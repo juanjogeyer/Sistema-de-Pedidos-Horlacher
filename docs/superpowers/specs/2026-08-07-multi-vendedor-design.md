@@ -102,9 +102,9 @@ la que se escribirían esas policies.
 
 ```js
 export const USERS = [
-  { id: 'eduardo', name: 'Eduardo Horlacher', role: 'vendedor', pin: '317' },
-  { id: 'carlos',  name: 'Carlos Riera',      role: 'vendedor', pin: '482' },
-  { id: 'admin',   name: 'Admin',             role: 'admin',    pin: '905' },
+  { id: 'eduardo', name: 'Eduardo Horlacher', role: 'vendedor', pin: '002' },
+  { id: 'carlos',  name: 'Carlos Riera',      role: 'vendedor', pin: '003' },
+  { id: 'admin',   name: 'Admin',             role: 'admin',    pin: '001' },
 ];
 ```
 
