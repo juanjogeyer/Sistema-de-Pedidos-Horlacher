@@ -23,6 +23,7 @@ export default function App() {
 }
 
 function OrdersApp() {
+  const { user, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('order'); // 'order' | 'pending' | 'history'
   const { cart, totalItems, getQuantity, updateQuantity, clearCart } = useCart();
   const { category, setCategory, variant, setVariant, filteredProducts } = useFilter();
@@ -57,6 +58,8 @@ function OrdersApp() {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           pendingCount={orders.length}
+          user={user}
+          onLogout={logout}
         />
 
         {activeTab === 'order' && (

@@ -30,3 +30,11 @@ export const PIN_LENGTH = 3;
 export function sellerName(sellerId) {
   return USERS.find((user) => user.id === sellerId)?.name ?? sellerId;
 }
+
+/**
+ * Primer nombre, para el encabezado. Cada uno ve su propia pantalla, asi que el
+ * apellido no desambigua nada y en un celular angosto pelea lugar con el logo.
+ */
+export function firstName(fullName) {
+  return String(fullName ?? '').trim().split(/\s+/)[0] ?? '';
+}
