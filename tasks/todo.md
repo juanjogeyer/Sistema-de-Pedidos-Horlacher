@@ -82,8 +82,9 @@ Puede esperar al día siguiente sin consecuencias. El detalle está en
 
 ## Anotado para después, fuera de alcance
 
-- `public/logo.png` pesa 1.5 MB y se muestra a 64px. Optimizado pesaría entre 20
-  y 60 KB. Los vendedores abren la app con datos móviles.
+- El favicon sigue apaisado: el logo es casi 2:1 y la pestaña lo achica a algo
+  ilegible. Necesita un ícono cuadrado hecho a propósito, que es una decisión de
+  diseño.
 - La tabla `orders` sigue siendo legible por cualquiera que tenga la anon key.
   El camino, si algún día se quiere separación real, es Supabase Auth + RLS
   sobre `seller_id`, que ya es la columna correcta para esas policies.
