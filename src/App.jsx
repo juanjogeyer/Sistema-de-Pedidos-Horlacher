@@ -1,4 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useAuth } from './hooks/useAuth';
+import { Login } from './components/auth/Login';
 import { useCart } from './hooks/useCart';
 import { useFilter } from './hooks/useFilter';
 import { useOrders } from './hooks/useOrders';
@@ -11,6 +13,16 @@ import { PendingOrders } from './components/orders/PendingOrders';
 import { OrderHistory } from './components/orders/OrderHistory';
 
 export default function App() {
+  const { user } = useAuth();
+
+  // Sin sesion no se ve nada de la app. Los roles todavia no se separan: eso
+  // llega con VendorApp y AdminApp.
+  if (!user) return <Login />;
+
+  return <OrdersApp />;
+}
+
+function OrdersApp() {
   const [activeTab, setActiveTab] = useState('order'); // 'order' | 'pending' | 'history'
   const { cart, totalItems, getQuantity, updateQuantity, clearCart } = useCart();
   const { category, setCategory, variant, setVariant, filteredProducts } = useFilter();

@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { LogOut } from 'lucide-react';
 import { APP_NAME } from '../../config/app';
+import { useAuth } from '../../hooks/useAuth';
 
 export function Header({ activeTab, setActiveTab, pendingCount }) {
   const [imgError, setImgError] = useState(false);
+  const { user, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
@@ -21,6 +24,18 @@ export function Header({ activeTab, setActiveTab, pendingCount }) {
             </div>
           )}
           <h1 className="text-xl font-semibold tracking-tight text-gray-900">{APP_NAME}</h1>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-gray-600 hidden sm:inline">{user.name}</span>
+          <button
+            onClick={logout}
+            title="Salir"
+            aria-label="Salir"
+            className="p-2 rounded-lg text-gray-500 hover:text-brand-red hover:bg-brand-red-light transition-colors"
+          >
+            <LogOut size={18} />
+          </button>
         </div>
       </div>
       
