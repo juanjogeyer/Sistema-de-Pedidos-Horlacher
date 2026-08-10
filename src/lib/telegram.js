@@ -1,3 +1,5 @@
+import { sellerName } from '../config/users';
+
 const TELEGRAM_TOKEN = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = import.meta.env.VITE_TELEGRAM_CHAT_ID;
 
@@ -19,6 +21,9 @@ export async function notificarPedido(order) {
   const mensaje =
     `🛒 *Nuevo pedido confirmado*\n` +
     `━━━━━━━━━━━━━━━━━━━━\n` +
+    // El vendedor va primero: quien recibe el aviso es administracion, y lo
+    // primero que necesita saber es de quien viene.
+    (order.seller_id ? `🧑‍💼 *Vendedor:* ${sellerName(order.seller_id)}\n` : '') +
     `👤 *Cliente:* ${order.name}\n` +
     `🧾 *Facturación:* ${order.billing}\n` +
     `🚚 *Expreso:* ${order.express}\n` +

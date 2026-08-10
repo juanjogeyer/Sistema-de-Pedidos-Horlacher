@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import { APP_NAME } from '../../config/app';
+import { sellerName } from '../../config/users';
 
 export const PrintableOrder = forwardRef(({ order }, ref) => {
   if (!order) return null;
@@ -18,6 +19,11 @@ export const PrintableOrder = forwardRef(({ order }, ref) => {
 
       <div className="mb-6">
         <p className="text-lg"><strong>Cliente:</strong> {order.name}</p>
+        {/* El papel va al expreso y despues a administracion: tiene que decir
+            de quien fue el pedido sin depender de la app. */}
+        {order.seller_id && (
+          <p className="text-lg"><strong>Vendedor:</strong> {sellerName(order.seller_id)}</p>
+        )}
         {order.billing && <p className="text-lg"><strong>Facturación:</strong> {order.billing}</p>}
         {order.express && <p className="text-lg"><strong>Expreso:</strong> {order.express}</p>}
         {order.notes && <p className="text-lg"><strong>Observaciones:</strong> {order.notes}</p>}
