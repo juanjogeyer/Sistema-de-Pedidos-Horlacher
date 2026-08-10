@@ -2,8 +2,10 @@ import { useState, useCallback } from 'react';
 import { Printer, Trash2 } from 'lucide-react';
 import { USERS, ROLES, sellerName, firstName } from '../../config/users';
 import { useOrderPrinting } from '../../hooks/useOrderPrinting';
+import { useActionError } from '../../hooks/useActionError';
 import { OrderList } from './OrderList';
 import { HiddenPrintable } from './HiddenPrintable';
+import { ErrorBanner } from '../layout/ErrorBanner';
 
 const VENDEDORES = USERS.filter((user) => user.role === ROLES.VENDEDOR);
 const TODOS = 'todos';
@@ -18,7 +20,14 @@ const TODOS = 'todos';
 export function PrintQueue({ orders, onPrint, onRemove }) {
   const [sellerFilter, setSellerFilter] = useState(TODOS);
 
-  const handleAfterPrint = useCallback((order) => onPrint(order.id), [onPrint]);
+  const { error, run, clear } = useActionError();
+
+  // Marcar como impreso puede fallar si el vendedor cancelo el pedido mientras
+  // se generaba el PDF. El aviso llega despues de imprimir, no antes.
+  const handleAfterPrint = useCallback(
+    (order) => run(() => onPrint(order.id)),
+    [onPrint, run]
+  );
   const { printingOrder, printRef, printOrder } = useOrderPrinting({
     onAfterPrint: handleAfterPrint,
   });
@@ -38,6 +47,8 @@ export function PrintQueue({ orders, onPrint, onRemove }) {
 
   return (
     <>
+      <ErrorBanner error={error} onDismiss={clear} />
+
       <div className="flex gap-2 px-4 pt-4 overflow-x-auto no-scrollbar print:hidden">
         {chips.map((chip) => (
           <button
@@ -68,7 +79,7 @@ export function PrintQueue({ orders, onPrint, onRemove }) {
               Imprimir
             </button>
             <button
-              onClick={() => onRemove(order.id)}
+              onClick={() => run(() => onRemove(order.id))}
               className="px-4 py-2.5 rounded-xl font-medium text-brand-red bg-brand-red-light hover:bg-red-100 transition-colors flex items-center justify-center"
               title="Eliminar pedido sin imprimir"
               aria-label="Eliminar pedido sin imprimir"

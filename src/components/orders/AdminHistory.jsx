@@ -1,8 +1,10 @@
 import { Printer, Trash2 } from 'lucide-react';
 import { sellerName } from '../../config/users';
 import { useOrderPrinting } from '../../hooks/useOrderPrinting';
+import { useActionError } from '../../hooks/useActionError';
 import { OrderList } from './OrderList';
 import { HiddenPrintable } from './HiddenPrintable';
+import { ErrorBanner } from '../layout/ErrorBanner';
 
 // Historial completo, de los dos vendedores. Solo administracion lo ve asi: el
 // vendedor tiene su propio historial y es de solo lectura.
@@ -11,9 +13,12 @@ import { HiddenPrintable } from './HiddenPrintable';
 // al expreso. Por eso vive aca y no del lado del vendedor.
 export function AdminHistory({ history, onDelete }) {
   const { printingOrder, printRef, printOrder } = useOrderPrinting();
+  const { error, run, clear } = useActionError();
 
   return (
     <>
+      <ErrorBanner error={error} onDismiss={clear} />
+
       <OrderList
         orders={history}
         emptyText="No hay pedidos en el historial"
@@ -28,7 +33,7 @@ export function AdminHistory({ history, onDelete }) {
               Reimprimir
             </button>
             <button
-              onClick={() => onDelete(order.id)}
+              onClick={() => run(() => onDelete(order.id))}
               className="px-3 py-2.5 rounded-xl bg-brand-red-light text-brand-red hover:text-black hover:bg-red-400 transition-colors flex items-center justify-center"
               title="Eliminar del historial"
               aria-label="Eliminar del historial"

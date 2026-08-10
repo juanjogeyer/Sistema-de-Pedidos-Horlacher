@@ -7,13 +7,23 @@ export function CartBar({ cart, totalItems, onConfirm }) {
   const [billing, setBilling] = useState('');
   const [express, setExpress] = useState('');
   const [notes, setNotes] = useState('');
+  const [sending, setSending] = useState(false);
 
   if (totalItems === 0) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!name.trim() || !billing || !express) return;
-    onConfirm({ cart, name, billing, express, notes });
+    if (!name.trim() || !billing || !express || sending) return;
+
+    setSending(true);
+    const ok = await onConfirm({ cart, name, billing, express, notes });
+    setSending(false);
+
+    // Si el envio fallo, el panel queda abierto con todo cargado. Vaciar el
+    // formulario ante un error obligaria a rehacer el pedido entero, que es
+    // justo lo que un boton de reintentar tiene que evitar.
+    if (ok === false) return;
+
     setOpen(false);
     setName('');
     setBilling('');
@@ -102,10 +112,11 @@ export function CartBar({ cart, totalItems, onConfirm }) {
 
               <button
                 type="submit"
-                className="w-full bg-brand-blue text-white font-medium px-5 py-3 rounded-xl hover:bg-brand-blue-dark transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-blue/20"
+                disabled={sending}
+                className="w-full bg-brand-blue text-white font-medium px-5 py-3 rounded-xl hover:bg-brand-blue-dark transition-colors flex items-center justify-center gap-2 shadow-lg shadow-brand-blue/20 disabled:opacity-60"
               >
                 <Send size={18} fill="currentColor" />
-                Enviar Pedido
+                {sending ? 'Enviando…' : 'Enviar Pedido'}
               </button>
             </form>
           </div>

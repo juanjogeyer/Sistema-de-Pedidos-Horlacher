@@ -4,7 +4,9 @@ import { products, VARIANTS } from '../data/products';
 import { useCart } from '../hooks/useCart';
 import { useFilter } from '../hooks/useFilter';
 import { useVendorOrders } from '../hooks/useVendorOrders';
+import { useActionError } from '../hooks/useActionError';
 import { Header } from '../components/layout/Header';
+import { ErrorBanner } from '../components/layout/ErrorBanner';
 import { FilterBar } from '../components/layout/FilterBar';
 import { ProductList } from '../components/products/ProductList';
 import { CartBar } from '../components/cart/CartBar';
@@ -19,6 +21,7 @@ export function VendorApp({ user, onLogout }) {
   const { cart, totalItems, getQuantity, updateQuantity, clearCart } = useCart();
   const { category, setCategory, variant, setVariant, filteredProducts } = useFilter();
   const { orders, history, addOrder, cancelOrder } = useVendorOrders(user);
+  const { error, run, clear } = useActionError();
 
   const visible = filteredProducts(products);
 
@@ -36,9 +39,12 @@ export function VendorApp({ user, onLogout }) {
     }
   }, [availableVariants, variant, setVariant]);
 
-  const handleConfirmOrder = (orderData) => {
-    addOrder(orderData);
-    clearCart();
+  // Devuelve si salio bien: CartBar mantiene el panel abierto con los datos
+  // cargados cuando falla, y el carrito se vacia recien con el pedido guardado.
+  const handleConfirmOrder = async (orderData) => {
+    const result = await run(() => addOrder(orderData));
+    if (result.ok) clearCart();
+    return result.ok;
   };
 
   const tabs = [
@@ -70,6 +76,8 @@ export function VendorApp({ user, onLogout }) {
       </div>
 
       <main className="max-w-xl mx-auto print:max-w-none print:m-0">
+        <ErrorBanner error={error} onDismiss={clear} />
+
         {activeTab === 'order' && (
           <>
             {visible.length === 0 ? (
@@ -95,7 +103,7 @@ export function VendorApp({ user, onLogout }) {
             emptyText="No tenés pedidos pendientes"
             renderActions={(order) => (
               <button
-                onClick={() => cancelOrder(order.id)}
+                onClick={() => run(() => cancelOrder(order.id))}
                 className="px-4 py-2.5 rounded-xl font-medium text-brand-red bg-brand-red-light hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
                 title="Cancelar pedido"
               >
