@@ -3,6 +3,7 @@ import { Delete, ChevronLeft, User } from 'lucide-react';
 import { USERS, PIN_LENGTH } from '../../config/users';
 import { useAuth } from '../../hooks/useAuth';
 import { APP_NAME } from '../../config/app';
+import { Logo } from '../layout/Logo';
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 
@@ -51,9 +52,12 @@ export function Login() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 py-10">
       <div className="w-full max-w-xs">
-        <h1 className="text-center text-xl font-semibold tracking-tight text-gray-900 mb-8">
-          {APP_NAME}
-        </h1>
+        <div className="flex flex-col items-center gap-3 mb-8">
+          <Logo size="lg" />
+          <h1 className="text-xl font-semibold tracking-tight text-gray-900">
+            {APP_NAME}
+          </h1>
+        </div>
 
         {!selected ? (
           <>
