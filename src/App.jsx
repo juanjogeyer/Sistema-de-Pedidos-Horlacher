@@ -55,9 +55,13 @@ function OrdersApp() {
     <div className="min-h-screen pb-20">
       <div className="print:hidden">
         <Header
+          tabs={[
+            { id: 'order', label: 'Hacer pedido' },
+            { id: 'pending', label: 'Pedidos pendientes', badge: orders.length },
+            { id: 'history', label: 'Historial' },
+          ]}
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          pendingCount={orders.length}
+          onTabChange={setActiveTab}
           user={user}
           onLogout={logout}
         />

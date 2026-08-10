@@ -7,12 +7,18 @@ import { firstName } from '../../config/users';
 const eduardo = { id: 'eduardo', name: 'Eduardo Horlacher', role: 'vendedor' };
 const admin = { id: 'admin', name: 'Admin', role: 'admin' };
 
+const TABS_VENDEDOR = [
+  { id: 'order', label: 'Hacer pedido' },
+  { id: 'pending', label: 'Mis pendientes', badge: 0 },
+  { id: 'history', label: 'Mi historial' },
+];
+
 function renderHeader(props = {}) {
   return render(
     <Header
+      tabs={TABS_VENDEDOR}
       activeTab="order"
-      setActiveTab={() => {}}
-      pendingCount={0}
+      onTabChange={() => {}}
       user={eduardo}
       onLogout={() => {}}
       {...props}
@@ -49,23 +55,46 @@ describe('Header', () => {
     expect(onLogout).toHaveBeenCalledOnce();
   });
 
-  it('muestra el contador de pendientes solo si hay', () => {
-    const { unmount } = renderHeader({ pendingCount: 3 });
+  it('dibuja las pestanas que le pasan, sin saber de roles', () => {
+    renderHeader({
+      tabs: [
+        { id: 'queue', label: 'Cola de impresión' },
+        { id: 'history', label: 'Historial' },
+      ],
+    });
+
+    expect(screen.getByRole('button', { name: 'Cola de impresión' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Hacer pedido' })).not.toBeInTheDocument();
+  });
+
+  it('muestra el badge solo si es mayor que cero', () => {
+    const withBadge = (badge) => [{ id: 'pending', label: 'Mis pendientes', badge }];
+
+    const { unmount } = renderHeader({ tabs: withBadge(3) });
     expect(screen.getByText('3')).toBeInTheDocument();
     unmount();
 
-    renderHeader({ pendingCount: 0 });
+    renderHeader({ tabs: withBadge(0) });
     expect(screen.queryByText('0')).not.toBeInTheDocument();
   });
 
   it('cambia de pestana', async () => {
     const user = userEvent.setup();
-    const setActiveTab = vi.fn();
-    renderHeader({ setActiveTab });
+    const onTabChange = vi.fn();
+    renderHeader({ onTabChange });
 
-    await user.click(screen.getByRole('button', { name: 'Historial' }));
+    await user.click(screen.getByRole('button', { name: 'Mi historial' }));
 
-    expect(setActiveTab).toHaveBeenCalledWith('history');
+    expect(onTabChange).toHaveBeenCalledWith('history');
+  });
+
+  it('marca cual pestana esta activa', () => {
+    renderHeader({ activeTab: 'pending' });
+
+    expect(screen.getByRole('button', { name: 'Mis pendientes' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    );
   });
 });
 

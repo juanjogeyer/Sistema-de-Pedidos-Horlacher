@@ -5,8 +5,12 @@ import { Logo } from './Logo';
 // Recibe el usuario por prop en vez de leer el contexto: quien lo monta ya
 // verifico que hay sesion, y asi el Header no puede quedar renderizado contra
 // un user en null mientras el arbol de arriba se reacomoda.
-export function Header({ activeTab, setActiveTab, pendingCount, user, onLogout }) {
-
+//
+// Las pestanas tambien llegan como dato, porque vendedor y admin tienen juegos
+// distintos. El Header no sabe que rol es cual: dibuja lo que le den.
+//
+// @param {Array<{id: string, label: string, badge?: number}>} tabs
+export function Header({ tabs, activeTab, onTabChange, user, onLogout }) {
   return (
     <header className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
       <div className="max-w-xl mx-auto px-4 h-16 flex items-center justify-between">
@@ -28,44 +32,28 @@ export function Header({ activeTab, setActiveTab, pendingCount, user, onLogout }
           <LogOut size={18} />
         </button>
       </div>
-      
-      <div className="max-w-2xl mx-auto px-4 flex gap-4 mt-2">
-        <button
-          onClick={() => setActiveTab('order')}
-          className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === 'order' 
-              ? 'border-brand-blue text-brand-blue' 
-              : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Hacer pedido
-        </button>
-        <button
-          onClick={() => setActiveTab('pending')}
-          className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
-            activeTab === 'pending' 
-              ? 'border-brand-blue text-brand-blue' 
-              : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Pedidos pendientes
-          {pendingCount > 0 && (
-            <span className="bg-brand-red text-white text-xs px-2 py-0.5 rounded-full">
-              {pendingCount}
-            </span>
-          )}
-        </button>
-        <button
-          onClick={() => setActiveTab('history')}
-          className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
-            activeTab === 'history'
-              ? 'border-brand-blue text-brand-blue'
-              : 'border-transparent text-gray-500 hover:text-gray-700'
-          }`}
-        >
-          Historial
-        </button>
-      </div>
+
+      <nav className="max-w-2xl mx-auto px-4 flex gap-4 mt-2">
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => onTabChange(tab.id)}
+            aria-current={activeTab === tab.id ? 'page' : undefined}
+            className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors flex items-center gap-2 ${
+              activeTab === tab.id
+                ? 'border-brand-blue text-brand-blue'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {tab.label}
+            {tab.badge > 0 && (
+              <span className="bg-brand-red text-white text-xs px-2 py-0.5 rounded-full">
+                {tab.badge}
+              </span>
+            )}
+          </button>
+        ))}
+      </nav>
     </header>
   );
 }
