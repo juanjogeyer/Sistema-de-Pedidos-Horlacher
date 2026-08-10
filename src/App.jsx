@@ -1,112 +1,20 @@
-import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from './hooks/useAuth';
+import { ROLES } from './config/users';
 import { Login } from './components/auth/Login';
-import { useCart } from './hooks/useCart';
-import { useFilter } from './hooks/useFilter';
-import { useOrders } from './hooks/useOrders';
-import { products, VARIANTS } from './data/products';
-import { Header } from './components/layout/Header';
-import { FilterBar } from './components/layout/FilterBar';
-import { ProductList } from './components/products/ProductList';
-import { CartBar } from './components/cart/CartBar';
-import { PendingOrders } from './components/orders/PendingOrders';
-import { OrderHistory } from './components/orders/OrderHistory';
+import { VendorApp } from './apps/VendorApp';
+import { AdminApp } from './apps/AdminApp';
 
+// Todo lo que hace App es decidir que arbol montar. Vendedor y admin no
+// comparten ninguna pantalla, asi que tampoco comparten componentes de vista:
+// el boton de imprimir no esta deshabilitado del lado del vendedor, no existe.
 export default function App() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
-  // Sin sesion no se ve nada de la app. Los roles todavia no se separan: eso
-  // llega con VendorApp y AdminApp.
   if (!user) return <Login />;
 
-  return <OrdersApp />;
-}
-
-function OrdersApp() {
-  const { user, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('order'); // 'order' | 'pending' | 'history'
-  const { cart, totalItems, getQuantity, updateQuantity, clearCart } = useCart();
-  const { category, setCategory, variant, setVariant, filteredProducts } = useFilter();
-  const { orders, history, addOrder, printOrder, removeOrder, deleteHistoryOrder } = useOrders();
-
-  const visible = filteredProducts(products);
-
-  // Determinar variantes disponibles y autoseleccionar si la actual no es válida.
-  // Memoizado para que la referencia sea estable y el efecto de abajo pueda
-  // depender del array en vez de una expresión armada en el propio array de deps.
-  const availableVariants = useMemo(() => {
-    const variantOrder = VARIANTS.map(v => v.id);
-    return [...new Set(products.filter(p => p.category === category).map(p => p.variant))]
-      .sort((a, b) => variantOrder.indexOf(a) - variantOrder.indexOf(b));
-  }, [category]);
-
-  useEffect(() => {
-    if (availableVariants.length > 0 && !availableVariants.includes(variant)) {
-      setVariant(availableVariants[0]);
-    }
-  }, [availableVariants, variant, setVariant]);
-
-  const handleConfirmOrder = (orderData) => {
-    addOrder(orderData);
-    clearCart();
-  };
-
-  return (
-    <div className="min-h-screen pb-20">
-      <div className="print:hidden">
-        <Header
-          tabs={[
-            { id: 'order', label: 'Hacer pedido' },
-            { id: 'pending', label: 'Pedidos pendientes', badge: orders.length },
-            { id: 'history', label: 'Historial' },
-          ]}
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          user={user}
-          onLogout={logout}
-        />
-
-        {activeTab === 'order' && (
-          <FilterBar
-            category={category}
-            onCategoryChange={setCategory}
-            variant={variant}
-            onVariantChange={setVariant}
-            availableVariants={availableVariants}
-          />
-        )}
-      </div>
-
-      <main className="max-w-xl mx-auto print:max-w-none print:m-0">
-        {activeTab === 'order' && (
-          <>
-            {visible.length === 0 ? (
-              <p className="text-center text-gray-400 text-sm py-16">Sin productos en esta categoría</p>
-            ) : (
-              <ProductList
-                products={visible}
-                getQuantity={getQuantity}
-                onUpdate={updateQuantity}
-              />
-            )}
-            <div className="print:hidden">
-              <CartBar cart={cart} totalItems={totalItems} onConfirm={handleConfirmOrder} />
-            </div>
-          </>
-        )}
-
-        {activeTab === 'pending' && (
-          <PendingOrders
-            orders={orders}
-            onPrintOrder={printOrder}
-            onRemoveOrder={removeOrder}
-          />
-        )}
-
-        {activeTab === 'history' && (
-          <OrderHistory history={history} onDeleteOrder={deleteHistoryOrder} />
-        )}
-      </main>
-    </div>
+  return user.role === ROLES.ADMIN ? (
+    <AdminApp user={user} onLogout={logout} />
+  ) : (
+    <VendorApp user={user} onLogout={logout} />
   );
 }

@@ -38,11 +38,26 @@ export function createSupabaseMock() {
   const queued = [];
   /** Resultado por defecto cuando la cola esta vacia. */
   let fallback = EMPTY;
+  /** Filas sembradas: si hay, las consultas se resuelven filtrandolas. */
+  let seeded = null;
   /** Canales de realtime creados. */
   const channels = [];
 
-  function nextResult() {
-    return queued.length > 0 ? queued.shift() : fallback;
+  function nextResult(chain) {
+    if (queued.length > 0) return queued.shift();
+
+    // Con filas sembradas el mock deja de devolver lo que le fijaron y aplica
+    // los .eq() de verdad. Sin esto, un test de aislamiento entre vendedores
+    // pasaria igual aunque el filtro no existiera.
+    if (seeded) {
+      const filters = chain.filter((call) => call.method === 'eq');
+      const data = seeded.filter((row) =>
+        filters.every(({ args: [column, value] }) => row[column] === value)
+      );
+      return { data, error: null };
+    }
+
+    return fallback;
   }
 
   function makeQuery(table) {
@@ -62,7 +77,7 @@ export function createSupabaseMock() {
     // Tiene que ser una funcion comun, no un vi.fn que devuelva el builder,
     // o el await entraria en loop.
     query.then = (onFulfilled, onRejected) =>
-      Promise.resolve(nextResult()).then(onFulfilled, onRejected);
+      Promise.resolve(nextResult(chain)).then(onFulfilled, onRejected);
 
     query.__table = table;
     query.__chain = chain;
@@ -103,6 +118,15 @@ export function createSupabaseMock() {
     queued.push({ ...EMPTY, ...result });
   };
 
+  /**
+   * Siembra filas y hace que las consultas apliquen sus .eq() de verdad, en vez
+   * de devolver un resultado fijo. Es la unica forma de que un test de
+   * aislamiento entre vendedores falle cuando el filtro desaparece.
+   */
+  client.__seed = (rows) => {
+    seeded = rows;
+  };
+
   /** Todas las llamadas hechas, en orden. */
   client.__calls = calls;
 
@@ -140,6 +164,7 @@ export function createSupabaseMock() {
     queued.length = 0;
     channels.length = 0;
     fallback = EMPTY;
+    seeded = null;
   };
 
   return client;
