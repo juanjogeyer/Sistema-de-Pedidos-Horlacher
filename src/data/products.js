@@ -28,7 +28,7 @@ export const products = [
   { code: '0097', name: 'Maní crocante sabor jamón 10 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0099', name: 'Maní crocante sabor panceta 10 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0101', name: 'Maní crocante sabor queso 10 x 1 kg', category: 'snacks', variant: 'grande' },
-  { code: '0104', name: 'Mani crocante sabor pizza 10 x 1 kg', category: 'snacks', variant: 'grande' },
+  { code: '0105', name: 'Mani crocante sabor pizza 10 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0029', name: 'Maní repelado salado 10 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0033', name: 'Maní tostado 10 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0090', name: 'Orjuela serrana 12 x 500 gr', category: 'snacks', variant: 'grande' },
@@ -41,6 +41,7 @@ export const products = [
   { code: '0069', name: 'Papa acanalada 6 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0071', name: 'Papa sabor pizza 6 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0065', name: 'Papa sabor serrano 6 x 1 kg', category: 'snacks', variant: 'grande' },
+  { code: '0086', name: 'Papas fritas pay 6 x 1 kg.', category: 'snacks', variant: 'grande' },
   { code: '0107', name: 'Rejilla sabor pizza 6 x 500 gs.', category: 'snacks', variant: 'grande' },
   { code: '0076', name: 'Tubo pizza 6 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0079', name: 'Tubo queso 6 x 1 kg', category: 'snacks', variant: 'grande' },
@@ -64,6 +65,7 @@ export const products = [
   { code: '0052', name: 'Palito salado 20 x 200 gs', category: 'snacks', variant: 'chico' },
   { code: '0058', name: 'Papa fritas 14 x 150 gs', category: 'snacks', variant: 'chico' },
   { code: '0057', name: 'Papa fritas 16 x 80 gs', category: 'snacks', variant: 'chico' },
+  { code: '0073', name: 'Papas fritas pay 12 x 500 gs.', category: 'snacks', variant: 'grande' },
 
   // ─── CROPP — PAQUETES GRANDES ───────────────────────────────
   { code: '0720', name: 'Cropp con cascara 12 x 285 gs', category: 'cropp', variant: 'grande' },
