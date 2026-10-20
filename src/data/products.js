@@ -22,7 +22,6 @@ export const products = [
   { code: '0009', name: 'Cascarones pizza 3 x 500 gs', category: 'snacks', variant: 'grande' },
   { code: '0093', name: 'Cascarones pizza 6 x 500 gs', category: 'snacks', variant: 'grande' },
   { code: '0011', name: 'Conitos sabor pizza 6 x 800 gs', category: 'snacks', variant: 'grande' },
-  { code: '0015', name: 'Conitos sabor serrano 6 x 800 gs', category: 'snacks', variant: 'grande' },
   { code: '0025', name: 'Tutuca 10 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0103', name: 'Maní crocante sabor cebolla 10 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0097', name: 'Maní crocante sabor jamón 10 x 1 kg', category: 'snacks', variant: 'grande' },
@@ -42,7 +41,6 @@ export const products = [
   { code: '0071', name: 'Papa sabor pizza 6 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0065', name: 'Papa sabor serrano 6 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0086', name: 'Papas fritas pay 6 x 1 kg.', category: 'snacks', variant: 'grande' },
-  { code: '0107', name: 'Rejilla sabor pizza 6 x 500 gs.', category: 'snacks', variant: 'grande' },
   { code: '0076', name: 'Tubo pizza 6 x 1 kg', category: 'snacks', variant: 'grande' },
   { code: '0079', name: 'Tubo queso 6 x 1 kg', category: 'snacks', variant: 'grande' },
 
@@ -65,7 +63,7 @@ export const products = [
   { code: '0052', name: 'Palito salado 20 x 200 gs', category: 'snacks', variant: 'chico' },
   { code: '0058', name: 'Papa fritas 14 x 150 gs', category: 'snacks', variant: 'chico' },
   { code: '0057', name: 'Papa fritas 16 x 80 gs', category: 'snacks', variant: 'chico' },
-  { code: '0073', name: 'Papas fritas pay 12 x 500 gs.', category: 'snacks', variant: 'grande' },
+  { code: '0073', name: 'Papas fritas pay 12 x 500 gs.', category: 'snacks', variant: 'chico' },
 
   // ─── CROPP — PAQUETES GRANDES ───────────────────────────────
   { code: '0720', name: 'Cropp con cascara 12 x 285 gs', category: 'cropp', variant: 'grande' },
